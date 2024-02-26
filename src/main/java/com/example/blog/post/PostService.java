@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -26,11 +27,9 @@ public class PostService {
         // DB 저장
         Post savePost = postRepository.save(post);
 
-        // Entity -> ResponseDto
-        PostResponseDto postResponseDto = new PostResponseDto(savePost);
-
-        return postResponseDto;
+        return new PostResponseDto(savePost);
     }
+
 
 //    public List<PostResponseDto> getPosts() {
 //        // DB 조회
@@ -47,6 +46,10 @@ public class PostService {
         Page<Post> postList = postRepository.findAll(pageable);
 
         return postList.map(PostResponseDto::new);
+    }
+
+    public long getTotalPosts() {
+        return postRepository.count();
     }
 
     public PostResponseDto getPostDto(Long id) {
