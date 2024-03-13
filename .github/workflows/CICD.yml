@@ -28,7 +28,7 @@ jobs:
 
       # Gradle을 사용한 빌드.
       - name: Build with Gradle
-#        run: ./gradlew build --stacktrace
+        #        run: ./gradlew build --stacktrace
         run: ./gradlew clean build -x test
 
 
@@ -54,4 +54,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            whoami
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ github.sha }}
+            docker stop $(docker ps -a -q)
+            docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ github.sha }}
+            docker rm $(docker ps --filter 'status=exited' -a -q)
+            docker image prune -a -f
