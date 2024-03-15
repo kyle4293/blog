@@ -34,6 +34,7 @@ public class JwtUtil {
 
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey;
+
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
@@ -42,6 +43,7 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }

@@ -5,6 +5,8 @@ import com.example.blog.aws.FileUploadService;
 import com.example.blog.user.User;
 import com.example.blog.user.UserDetailsImpl;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,11 +27,7 @@ public class PostController {
         this.fileUploadService = fileUploadService;
     }
 
-//    @PostMapping
-//    public PostResponseDto createPost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody PostRequestDto requestDto) {
-//        User user = userDetails.getUser();
-//        return postService.createPost(user, requestDto);
-//    }
+
     @PostMapping(consumes = "multipart/form-data")
     public PostResponseDto createPost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                       @RequestPart("post") PostRequestDto requestDto,
@@ -51,13 +49,16 @@ public class PostController {
 
     @GetMapping
     public Page<PostResponseDto> getPosts(
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam(name = "isAsc", defaultValue = "true") boolean isAsc) {
-        return postService.getPosts(page-1, size, sortBy, isAsc);
-    }
+        System.out.println("keyword = " + keyword);
 
+        // 서비스 메소드 호출시 페이지 번호 조정
+        return postService.getPosts(page - 1, size, sortBy, isAsc, keyword);
+    }
 
     @GetMapping("/{id}")
     public PostResponseDto getPostDto(@PathVariable Long id) {

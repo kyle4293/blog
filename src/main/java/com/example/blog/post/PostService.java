@@ -3,6 +3,8 @@ package com.example.blog.post;
 import com.example.blog.exception.CustomException;
 import com.example.blog.exception.ErrorCode;
 import com.example.blog.user.User;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,22 +32,20 @@ public class PostService {
         return new PostResponseDto(savePost);
     }
 
-
-//    public List<PostResponseDto> getPosts() {
-//        // DB 조회
-//        return postRepository.findAllByOrderByModifiedAtDesc().stream().map(PostResponseDto::new).toList();
-//    }
-
-    public Page<PostResponseDto> getPosts(int page, int size, String sortBy, boolean isAsc) {
-        // 페이징 처리
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
+    public Page<PostResponseDto> getPosts(int page, int size, String sortBy, boolean isAsc, String keyword) {
+        Sort sort = Sort.by(isAsc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
+//        System.out.println("keyword = " + keyword);
 
-
-        Page<Post> postList = postRepository.findAll(pageable);
-
-        return postList.map(PostResponseDto::new);
+        if (keyword != null && !keyword.isEmpty()) {
+            QPost qPost = QPost.post;
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qPost.title.containsIgnoreCase(keyword)
+                    .or(qPost.content.containsIgnoreCase(keyword)));
+            return postRepository.findAll(builder, pageable).map(PostResponseDto::new);
+        } else {
+            return postRepository.findAll(pageable).map(PostResponseDto::new);
+        }
     }
 
     public long getTotalPosts() {
