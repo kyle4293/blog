@@ -61,5 +61,5 @@ jobs:
             fi
             
             docker pull ${{ secrets.DOCKER_USERNAME }}/spring-blog:${{ github.sha }}
-            docker run -d --name react-blog --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring-blog:${{ github.sha }}
+            docker run -d --name spring-blog --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring-blog:${{ github.sha }}
             docker image prune -f
